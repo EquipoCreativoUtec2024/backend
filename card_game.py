@@ -50,10 +50,11 @@ def route_questions():
     
     elif request.method == 'POST':
         question_data = request.get_json()
-        new_question = Questions(question = question_data['question'], author = question_data['author'], likes = 0, dislikes = 0, ratio = 0)
+        new_question = Questions(question = question_data['question'], author = question_data['author'], likes = 0, dislikes = 0, ratio = 0, tag = question_data['type'])
         db.session.add(new_question)
         db.session.commit()
-        del cache['questions']
+        if 'questions' in cache:
+            del cache['questions']
         return 'SUCCESS'
     elif request.method == 'PUT':
         question_data = request.get_json()
@@ -64,14 +65,16 @@ def route_questions():
             question.dislikes += 1
         question.ratio = question.likes / (question.likes + question.dislikes)
         db.session.commit()
-        del cache['questions']
+        if 'questions' in cache:
+            del cache['questions']
         return 'SUCCESS'
     elif request.method == 'DELETE':
         question_data = request.get_json()
         question = Questions.query.get(question_data['id'])
         db.session.delete(question)
         db.session.commit()
-        del cache['questions']
+        if 'questions' in cache:
+            del cache['questions']
         return 'SUCCESS'
 
 if __name__ == '__main__':
